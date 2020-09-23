@@ -128,20 +128,6 @@ function evalFunction(currentState, goalState, level) {
   return manhattanHeuristic(currentState, goalState) + level;
 }
 
-// computes the inversion count to determine if the board is solvable
-function isSolvable(currentState) {
-  let inversionCount = 0;
-  for (let i = 0; i < BOARD_SIZE - 1; i++)
-    for (let j = i + 1; j < BOARD_SIZE; j++)
-      if (
-        currentState[j][i] !== BLANK &&
-        currentState[j][i] > currentState[i][j]
-      )
-        inversionCount++;
-
-  // puzzle is solvable if inversion count is even
-  return inversionCount % 2 === 0;
-}
 // the driver for the eight puzzle
 class EightPuzzle {
   constructor(initialState) {
@@ -149,10 +135,25 @@ class EightPuzzle {
     this.open = [];
 
     this.solve = this.solve.bind(this);
+    this.isSolvable = this.isSolvable.bind(this);
   }
 
+  // computes the inversion count to determine if the board is solvable
+  isSolvable() {
+    let inversionCount = 0;
+    for (let i = 0; i < BOARD_SIZE - 1; i++)
+      for (let j = i + 1; j < BOARD_SIZE; j++)
+        if (
+          this.start.state[j][i] !== BLANK &&
+          this.start.state[j][i] > this.start.state[i][j]
+        )
+          inversionCount++;
+
+    // puzzle is solvable if inversion count is even
+    return inversionCount % 2 === 0;
+  }
   solve() {
-    if (!isSolvable(this.start.state)) return null;
+    if (!this.isSolvable()) return null;
     // compute evaluation function for start node
     this.start.evalScore = evalFunction(
       this.start.state,
