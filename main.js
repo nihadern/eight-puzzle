@@ -3,8 +3,8 @@ const BLANK = null;
 // predetermined goal state
 const GOAL_STATE = [
   [1, 2, 3],
-  [4, null, 5],
-  [6, 7, 8],
+  [4, 5, 6],
+  [7, 8, BLANK],
 ];
 
 // board widht/height
@@ -17,11 +17,21 @@ function renderState(state, tableName = "eight-puzzle") {
     let row = table.insertRow();
     for (let j = 0; j < state[0].length; j++) {
       let col = row.insertCell();
-      let input = document.createElement("input");
-      input.value = state[i][j];
-      col.appendChild(input);
+      col.innerText = state[i][j];
     }
   }
+}
+
+function renderStates(states) {
+  const statesSpace = document.getElementById("states");
+  states.forEach((state, i) => {
+    const table = document.createElement("table");
+    table.id = `state${i}`;
+    statesSpace.appendChild(document.createElement("br"));
+    statesSpace.appendChild(table);
+
+    renderState(state, table.id);
+  });
 }
 
 // finds the index of an element in a 2d array
@@ -187,5 +197,11 @@ puzzle = new EightPuzzle([
   [7, 5, 8],
 ]);
 // puzzle = new EightPuzzle(GOAL_STATE);
-console.log(puzzle.solve());
-renderState(GOAL_STATE);
+const solved = puzzle.solve();
+const solvedStates = [];
+let node = solved;
+while (node) {
+  solvedStates.push(node.state);
+  node = node.previousNode;
+}
+renderStates(solvedStates);
