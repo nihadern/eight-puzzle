@@ -25,7 +25,7 @@ function renderState(state, tableName = "eight-puzzle") {
 }
 
 // finds the index of an element in a 2d array
-function arrayFind(arr, k) {
+function boardFind(arr, k) {
   for (let i = 0; i < arr.length; i++) {
     let j = arr[i].indexOf(k);
     if (j > -1) {
@@ -76,7 +76,7 @@ class EightPuzzleNode {
 
   getChildNodes() {
     // find the blank index
-    const [blankX, blankY] = arrayFind(this.state, BLANK);
+    const [blankX, blankY] = boardFind(this.state, BLANK);
     // try all possible moves
     const moves = [
       [blankX - 1, blankY],
@@ -104,7 +104,7 @@ function manhattanHeuristic(currentState, goalState) {
   let score = 0;
   for (let i = 0; i < goalState.length; i++)
     for (let j = 0; j < goalState[0].length; j++) {
-      const [goalX, goalY] = arrayFind(goalState, currentState[i][j]);
+      const [goalX, goalY] = boardFind(goalState, currentState[i][j]);
       score +=
         currentState[i][j] === BLANK
           ? 0
@@ -118,11 +118,15 @@ function evalFunction(currentState, goalState, level) {
   return manhattanHeuristic(currentState, goalState) + level;
 }
 
+// computes the inversion count to determine if the board is solvable
 function isSolvable(currentState) {
   let inversionCount = 0;
   for (let i = 0; i < BOARD_SIZE - 1; i++)
     for (let j = i + 1; j < BOARD_SIZE; j++)
-      if (currentState[j][i] !== BLANK && currentState[j][i] > arr[i][j])
+      if (
+        currentState[j][i] !== BLANK &&
+        currentState[j][i] > currentState[i][j]
+      )
         inversionCount++;
 
   // puzzle is solvable if inversion count is even
@@ -138,6 +142,7 @@ class EightPuzzle {
   }
 
   solve() {
+    if (!isSolvable(this.start.state)) return null;
     // compute evaluation function for start node
     this.start.evalScore = evalFunction(
       this.start.state,
@@ -147,6 +152,7 @@ class EightPuzzle {
     // add start node to open list
     this.open.push(this.start);
 
+    let iter = 0;
     while (true) {
       // pop the best node
       let currentNode = this.open.shift();
@@ -166,17 +172,19 @@ class EightPuzzle {
         );
         this.open.push(childNode);
       });
-      // sort the open list by the evaluation scores
+      // sort the open list by the evaluation scores/ a prioty list could
+      // be used instead
       this.open.sort((nodeA, nodeB) => nodeA.evalScore - nodeB.evalScore);
-      // close the current node
+      iter++;
+      if (iter > 50) break;
     }
   }
 }
 
 puzzle = new EightPuzzle([
-  [1, 2, 3],
-  [4, 5, BLANK],
-  [6, 7, 8],
+  [1, BLANK, 3],
+  [4, 2, 6],
+  [7, 5, 8],
 ]);
 // puzzle = new EightPuzzle(GOAL_STATE);
 console.log(puzzle.solve());
