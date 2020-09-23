@@ -60,7 +60,7 @@ function moveBlank(state, blankX, blankY, moveX, moveY) {
 }
 
 class EightPuzzleNode {
-  constructor(state, level, evalScore) {
+  constructor(state, level, evalScore, previousNode) {
     // the state of the board
     this.state = state;
     // the level of the node i.e g(n) = cost so far
@@ -68,6 +68,8 @@ class EightPuzzleNode {
     this.level = level;
     // the evaluation score  f(n) = g(n) + h(n) where h is the heuristic
     this.evalScore = evalScore;
+    // link previous node
+    this.previousNode = previousNode;
     // js method binding
     this.getChildNodes = this.getChildNodes.bind(this);
   }
@@ -89,7 +91,7 @@ class EightPuzzleNode {
       // only add if move is valid and creates a valid board state
       if (childState)
         validChildren.push(
-          new EightPuzzleNode(childState, this.level + 1, null)
+          new EightPuzzleNode(childState, this.level + 1, null, this)
         );
     });
 
@@ -98,26 +100,41 @@ class EightPuzzleNode {
 }
 
 // first heuristic: number of misplaced time i.e. h(x)
-function misplacedHeuristic(currentState, goalState) {
-  score = 0;
+function manhattanHeuristic(currentState, goalState) {
+  let score = 0;
   for (let i = 0; i < goalState.length; i++)
     for (let j = 0; j < goalState[0].length; j++) {
-      if (currentState[i][j] !== goalState[i][j]) score += 1;
+      const [goalX, goalY] = arrayFind(goalState, currentState[i][j]);
+      score +=
+        currentState[i][j] === BLANK
+          ? 0
+          : Math.abs(i - goalX) + Math.abs(j - goalY);
     }
   return score;
 }
 
 // evaluation function for the A* algorithm i.e. f(x)
 function evalFunction(currentState, goalState, level) {
-  return misplacedHeuristic(currentState, goalState) + level;
+  return manhattanHeuristic(currentState, goalState) + level;
 }
 
+function isSolvable(currentState) {
+  let inversionCount = 0;
+  for (let i = 0; i < BOARD_SIZE - 1; i++)
+    for (let j = i + 1; j < BOARD_SIZE; j++)
+      if (currentState[j][i] !== BLANK && currentState[j][i] > arr[i][j])
+        inversionCount++;
+
+  // puzzle is solvable if inversion count is even
+  return inversionCount % 2 === 0;
+}
 // the driver for the eight puzzle
 class EightPuzzle {
   constructor(initialState) {
     this.start = new EightPuzzleNode(initialState, 0, null);
     this.open = [];
-    this.closed = [];
+
+    this.solve = this.solve.bind(this);
   }
 
   solve() {
@@ -135,8 +152,10 @@ class EightPuzzle {
       let currentNode = this.open.shift();
 
       console.log(currentNode.level, currentNode.state);
+
       // solution reached if heuristic is 0
-      if (misplacedHeuristic(currentNode.state, GOAL_STATE) === 0) break;
+      if (manhattanHeuristic(currentNode.state, GOAL_STATE) === 0)
+        return currentNode;
 
       // compute eval function for each child node
       currentNode.getChildNodes().forEach((childNode) => {
@@ -150,16 +169,15 @@ class EightPuzzle {
       // sort the open list by the evaluation scores
       this.open.sort((nodeA, nodeB) => nodeA.evalScore - nodeB.evalScore);
       // close the current node
-      this.closed.push(currentNode);
     }
   }
 }
 
 puzzle = new EightPuzzle([
-  [2, 8, 3],
-  [1, 6, 4],
-  [7, BLANK, 5],
+  [1, 2, 3],
+  [4, 5, BLANK],
+  [6, 7, 8],
 ]);
-puzzle.solve();
-
+// puzzle = new EightPuzzle(GOAL_STATE);
+console.log(puzzle.solve());
 renderState(GOAL_STATE);
