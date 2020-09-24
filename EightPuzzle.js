@@ -1,8 +1,8 @@
 // finds the index of an element in a 2d array
 function boardFind(arr, k) {
-  for (let i = 0; i < arr.length; i++) {
+  for (let i = 0; i < arr.length; i++)
     for (let j = 0; j < arr.length; j++) if (arr[i][j] === k) return [i, j];
-  }
+
   return null;
 }
 

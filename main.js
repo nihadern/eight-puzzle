@@ -35,7 +35,7 @@ function renderStates(states, statesSpaceid = "states") {
     const table = document.createElement("table");
     const header = document.createElement("th");
     header.colSpan = BOARD_SIZE;
-    header.innerText = `Step ${i + 1}`;
+    header.innerText = `Move ${i + 1}`;
     table.appendChild(header);
     table.id = `state${i}`;
     statesSpace.appendChild(table);
@@ -111,12 +111,14 @@ function solvePuzzle() {
       solvedStates.push(node.state);
       node = node.previousNode;
     }
-    renderStates(solvedStates.reverse());
+    renderStates(solvedStates.reverse().slice(1));
   } else {
     displayMessage("The puzzle is unsolvable!", false);
     return;
   }
-  displayMessage(`Solved in ${puzzle.iter} iterations!`);
+  displayMessage(
+    `Solved in  ${solved.level} moves and ${puzzle.iter} iterations!`
+  );
 }
 
 function randomizeSolveBoard() {
