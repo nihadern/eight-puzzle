@@ -48,8 +48,6 @@ class EightPuzzleNode {
     this.evalScore = evalScore;
     // link previous node
     this.previousNode = previousNode;
-    // js method binding
-    this.getChildNodes = this.getChildNodes.bind(this);
   }
 
   getChildNodes() {
@@ -66,7 +64,8 @@ class EightPuzzleNode {
     const validChildren = [];
 
     for (let i = 0; i < moves.length; i++) {
-      const [moveRow, moveCol] = moves[i];
+      const moveRow = moves[i][0];
+      const moveCol = moves[i][1];
       const childState = moveBlank(
         this.state,
         blankRow,
@@ -109,7 +108,6 @@ class EightPuzzle {
     this.start = new EightPuzzleNode(initialState, 0, null);
     this.solve = this.solve.bind(this);
     this.iter = 0;
-    this.isSolvable = this.isSolvable.bind(this);
   }
 
   // computes the inversion count to determine if the board is solvable
