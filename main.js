@@ -260,4 +260,9 @@ function solvePuzzle() {
   }
 }
 
+function randomizeSolveBoard() {
+  randomizeBoard();
+  solvePuzzle();
+}
+
 solvePuzzle();
