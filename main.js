@@ -58,7 +58,11 @@ function boardFind(arr, k) {
 // copies a board state
 function copyState(state) {
   let newState = new Array(state.length);
-  for (let i = 0; i < state.length; i++) newState[i] = state[i].slice();
+  for (let i = 0; i < state.length; i++) {
+    let row = new Array(state[0].length);
+    for (let j = 0; j < state[0].length; j++) row[j] = state[i][j];
+    newState[i] = row;
+  }
   return newState;
 }
 
