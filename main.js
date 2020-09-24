@@ -110,15 +110,16 @@ class EightPuzzleNode {
     ];
     // create a node for each valid move
     const validChildren = [];
-    moves.forEach(([moveX, moveY]) => {
+
+    for (let i = 0; i < moves.length; i++) {
+      const [moveX, moveY] = moves[i];
       const childState = moveBlank(this.state, blankX, blankY, moveX, moveY);
       // only add if move is valid and creates a valid board state
       if (childState)
         validChildren.push(
           new EightPuzzleNode(childState, this.level + 1, null, this)
         );
-    });
-
+    }
     return validChildren;
   }
 }
@@ -128,11 +129,11 @@ function manhattanHeuristic(currentState, goalState) {
   let score = 0;
   for (let i = 0; i < goalState.length; i++)
     for (let j = 0; j < goalState[0].length; j++) {
-      const [goalX, goalY] = boardFind(goalState, currentState[i][j]);
-      score +=
-        currentState[i][j] === BLANK
-          ? 0
-          : Math.abs(i - goalX) + Math.abs(j - goalY);
+      if (currentState[i][j] !== BLANK) {
+        const goalX = (currentState[i][j] - 1) % BOARD_SIZE;
+        const goalY = Math.floor((currentState[i][j] - 1) / BOARD_SIZE);
+        score += Math.abs(i - goalY) + Math.abs(j - goalX);
+      }
     }
   return score;
 }
