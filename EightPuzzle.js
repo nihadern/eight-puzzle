@@ -78,7 +78,7 @@ class EightPuzzleNode {
   }
 }
 
-// first heuristic: number of misplaced time i.e. h(x)
+// first heuristic: the manhatan distance of each tile i.e. h(x)
 function manhattanHeuristic(currentState) {
   let score = 0;
   for (let i = 0; i < currentState.length; i++)
@@ -87,6 +87,20 @@ function manhattanHeuristic(currentState) {
         const goalCol = (currentState[i][j] - 1) % BOARD_SIZE;
         const goalRow = Math.floor((currentState[i][j] - 1) / BOARD_SIZE);
         score += Math.abs(i - goalRow) + Math.abs(j - goalCol);
+      }
+    }
+  return score;
+}
+
+// first heuristic: number of misplaced i.e. h(x)
+function hammingHeuristic(currentState) {
+  let score = 0;
+  for (let i = 0; i < currentState.length; i++)
+    for (let j = 0; j < currentState[0].length; j++) {
+      if (currentState[i][j] !== BLANK) {
+        const goalCol = (currentState[i][j] - 1) % BOARD_SIZE;
+        const goalRow = Math.floor((currentState[i][j] - 1) / BOARD_SIZE);
+        if (goalCol !== j || goalRow !== i) score++;
       }
     }
   return score;
