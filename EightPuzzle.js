@@ -1,19 +1,16 @@
 // finds the index of an element in a 2d array
 function boardFind(arr, k) {
   for (let i = 0; i < arr.length; i++) {
-    let j = arr[i].indexOf(k);
-    if (j > -1) {
-      return [i, j];
-    }
+    for (let j = 0; j < arr.length; j++) if (arr[i][j] === k) return [i, j];
   }
   return null;
 }
 
 // copies a board state
 function copyState(state) {
-  let newState = new Array(state.length);
+  const newState = new Array(state.length);
   for (let i = 0; i < state.length; i++) {
-    let row = new Array(state[0].length);
+    const row = new Array(state[0].length);
     for (let j = 0; j < state[0].length; j++) row[j] = state[i][j];
     newState[i] = row;
   }
@@ -64,14 +61,12 @@ class EightPuzzleNode {
     const validChildren = [];
 
     for (let i = 0; i < moves.length; i++) {
-      const moveRow = moves[i][0];
-      const moveCol = moves[i][1];
       const childState = moveBlank(
         this.state,
         blankRow,
         blankCol,
-        moveRow,
-        moveCol
+        moves[i][0],
+        moves[i][1]
       );
       // only add if move is valid and creates a valid board state
       if (childState)
@@ -124,7 +119,7 @@ class EightPuzzle {
           inversionCount++;
     return inversionCount % 2 === 0;
   }
-  solve(maxIter) {
+  solve(maxIter = Number.MAX_VALUE) {
     if (!this.isSolvable()) return null;
     // compute evaluation function for start node
     this.start.evalScore = evalFunction(this.start.state, this.start.level);
@@ -147,7 +142,7 @@ class EightPuzzle {
         open.enqueue(childNode);
       });
       this.iter++;
-      if (maxIter && this.iter > maxIter) throw "Max iteration reached!";
+      if (this.iter > maxIter) throw "Max iteration reached!";
     }
     return null;
   }
