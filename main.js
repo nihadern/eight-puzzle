@@ -173,7 +173,7 @@ class EightPuzzle {
     // add start node to open list
     this.open.push(this.start);
 
-    let iter = 0;
+    this.iter = 0;
     while (true) {
       // pop the best node
       let currentNode = this.open.shift();
@@ -196,8 +196,8 @@ class EightPuzzle {
       // sort the open list by the evaluation scores/ a prioty list could
       // be used instead
       this.open.sort((nodeA, nodeB) => nodeA.evalScore - nodeB.evalScore);
-      iter++;
-      if (maxIter && iter > maxIter) return null;
+      this.iter++;
+      if (maxIter && this.iter > maxIter) return null;
     }
   }
 }
@@ -267,7 +267,7 @@ function solvePuzzle() {
     displayMessage("The puzzle is unsolvable!", false);
     return;
   }
-  displayMessage("Solved!");
+  displayMessage(`Solved in ${puzzle.iter} iterations!`);
 }
 
 function randomizeSolveBoard() {
