@@ -147,19 +147,19 @@ class EightPuzzle {
   // computes the inversion count to determine if the board is solvable
   isSolvable() {
     let inversionCount = 0;
-    for (let i = 0; i < BOARD_SIZE - 1; i++)
-      for (let j = i + 1; j < BOARD_SIZE; j++)
+    const flatBoard = this.start.state.flat();
+    for (let i = 0; i < flatBoard.length; i++)
+      for (let j = i + 1; j < flatBoard.length; j++)
         if (
-          this.start.state[j][i] !== BLANK &&
-          this.start.state[j][i] > this.start.state[i][j]
+          flatBoard[j] !== BLANK &&
+          flatBoard[i] !== BLANK &&
+          flatBoard[j] > flatBoard[i]
         )
           inversionCount++;
-
-    // puzzle is solvable if inversion count is even
     return inversionCount % 2 === 0;
   }
   solve(maxIter) {
-    // if (!this.isSolvable()) return null;
+    if (!this.isSolvable()) return null;
     // compute evaluation function for start node
     this.start.evalScore = evalFunction(
       this.start.state,
