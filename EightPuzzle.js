@@ -79,10 +79,10 @@ class EightPuzzleNode {
 }
 
 // first heuristic: number of misplaced time i.e. h(x)
-function manhattanHeuristic(currentState, goalState) {
+function manhattanHeuristic(currentState) {
   let score = 0;
-  for (let i = 0; i < goalState.length; i++)
-    for (let j = 0; j < goalState[0].length; j++) {
+  for (let i = 0; i < currentState.length; i++)
+    for (let j = 0; j < currentState[0].length; j++) {
       if (currentState[i][j] !== BLANK) {
         const goalX = (currentState[i][j] - 1) % BOARD_SIZE;
         const goalY = Math.floor((currentState[i][j] - 1) / BOARD_SIZE);
@@ -93,8 +93,8 @@ function manhattanHeuristic(currentState, goalState) {
 }
 
 // evaluation function for the A* algorithm i.e. f(x)
-function evalFunction(currentState, goalState, level) {
-  return manhattanHeuristic(currentState, goalState) + level;
+function evalFunction(currentState, level) {
+  return manhattanHeuristic(currentState) + level;
 }
 
 // the driver for the eight puzzle
@@ -123,11 +123,7 @@ class EightPuzzle {
   solve(maxIter) {
     if (!this.isSolvable()) return null;
     // compute evaluation function for start node
-    this.start.evalScore = evalFunction(
-      this.start.state,
-      GOAL_STATE,
-      this.start.level
-    );
+    this.start.evalScore = evalFunction(this.start.state, this.start.level);
 
     const open = new PriorityQueue((a, b) => a.evalScore > b.evalScore);
     // add start node to open list
@@ -138,24 +134,15 @@ class EightPuzzle {
       // pop the best node
       let currentNode = open.dequeue();
 
-      // console.log(currentNode.level, currentNode.state);
-
       // solution reached if heuristic is 0
       if (manhattanHeuristic(currentNode.state, GOAL_STATE) === 0)
         return currentNode;
 
       // compute eval function for each child node
       currentNode.getChildNodes().forEach((childNode) => {
-        childNode.evalScore = evalFunction(
-          childNode.state,
-          GOAL_STATE,
-          childNode.level
-        );
+        childNode.evalScore = evalFunction(childNode.state, childNode.level);
         open.enqueue(childNode);
       });
-      // sort the open list by the evaluation scores/ a prioty list could
-      // be used instead
-      //   this.open.sort((nodeA, nodeB) => nodeA.evalScore - nodeB.evalScore);
       this.iter++;
       if (maxIter && this.iter > maxIter) return null;
     }
