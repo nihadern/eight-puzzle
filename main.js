@@ -96,7 +96,14 @@ function solvePuzzle() {
   }
 
   puzzle = new EightPuzzle(board);
-  const solved = puzzle.solve(maxIter);
+  let solved = null;
+  try {
+    solved = puzzle.solve(maxIter);
+  } catch (error) {
+    displayMessage(error, false);
+    return;
+  }
+
   if (solved) {
     const solvedStates = [];
     let node = solved;

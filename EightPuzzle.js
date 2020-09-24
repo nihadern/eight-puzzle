@@ -134,7 +134,7 @@ class EightPuzzle {
     open.enqueue(this.start);
 
     this.iter = 0;
-    while (true) {
+    while (open.length() > 0) {
       // pop the best node
       let currentNode = open.dequeue();
 
@@ -147,7 +147,8 @@ class EightPuzzle {
         open.enqueue(childNode);
       });
       this.iter++;
-      if (maxIter && this.iter > maxIter) return null;
+      if (maxIter && this.iter > maxIter) throw "Max iteration reached!";
     }
+    return null;
   }
 }

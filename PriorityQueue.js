@@ -28,6 +28,10 @@ class PriorityQueue {
     // return true if the queue is empty.
     return this.items.length === 0;
   }
+
+  length() {
+    return this.items.length;
+  }
 }
 
 // const pq = new PriorityQueue();
