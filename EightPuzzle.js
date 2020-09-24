@@ -22,17 +22,17 @@ function copyState(state) {
 
 // moves the blank to the desired position and retuns new state
 // retuns null if invalid move / out of bounds
-function moveBlank(state, blankX, blankY, moveX, moveY) {
+function moveBlank(state, blankRow, blankCol, moveRow, moveCol) {
   if (
     // check for bounds
-    moveX < BOARD_SIZE &&
-    moveX >= 0 &&
-    moveY < BOARD_SIZE &&
-    moveY >= 0
+    moveRow < BOARD_SIZE &&
+    moveRow >= 0 &&
+    moveCol < BOARD_SIZE &&
+    moveCol >= 0
   ) {
     newState = copyState(state);
-    newState[blankX][blankY] = newState[moveX][moveY];
-    newState[moveX][moveY] = BLANK;
+    newState[blankRow][blankCol] = newState[moveRow][moveCol];
+    newState[moveRow][moveCol] = BLANK;
     return newState;
   } else return null;
 }
@@ -54,20 +54,26 @@ class EightPuzzleNode {
 
   getChildNodes() {
     // find the blank index
-    const [blankX, blankY] = boardFind(this.state, BLANK);
+    const [blankRow, blankCol] = boardFind(this.state, BLANK);
     // try all possible moves
     const moves = [
-      [blankX - 1, blankY],
-      [blankX + 1, blankY],
-      [blankX, blankY - 1],
-      [blankX, blankY + 1],
+      [blankRow - 1, blankCol],
+      [blankRow + 1, blankCol],
+      [blankRow, blankCol - 1],
+      [blankRow, blankCol + 1],
     ];
     // create a node for each valid move
     const validChildren = [];
 
     for (let i = 0; i < moves.length; i++) {
-      const [moveX, moveY] = moves[i];
-      const childState = moveBlank(this.state, blankX, blankY, moveX, moveY);
+      const [moveRow, moveCol] = moves[i];
+      const childState = moveBlank(
+        this.state,
+        blankRow,
+        blankCol,
+        moveRow,
+        moveCol
+      );
       // only add if move is valid and creates a valid board state
       if (childState)
         validChildren.push(
@@ -84,9 +90,9 @@ function manhattanHeuristic(currentState) {
   for (let i = 0; i < currentState.length; i++)
     for (let j = 0; j < currentState[0].length; j++) {
       if (currentState[i][j] !== BLANK) {
-        const goalX = (currentState[i][j] - 1) % BOARD_SIZE;
-        const goalY = Math.floor((currentState[i][j] - 1) / BOARD_SIZE);
-        score += Math.abs(i - goalY) + Math.abs(j - goalX);
+        const goalCol = (currentState[i][j] - 1) % BOARD_SIZE;
+        const goalRow = Math.floor((currentState[i][j] - 1) / BOARD_SIZE);
+        score += Math.abs(i - goalRow) + Math.abs(j - goalCol);
       }
     }
   return score;
@@ -135,8 +141,7 @@ class EightPuzzle {
       let currentNode = open.dequeue();
 
       // solution reached if heuristic is 0
-      if (manhattanHeuristic(currentNode.state, GOAL_STATE) === 0)
-        return currentNode;
+      if (manhattanHeuristic(currentNode.state) === 0) return currentNode;
 
       // compute eval function for each child node
       currentNode.getChildNodes().forEach((childNode) => {
