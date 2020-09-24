@@ -24,10 +24,16 @@ function renderState(state, tableName = "eight-puzzle") {
 
 function renderStates(states) {
   const statesSpace = document.getElementById("states");
+  while (statesSpace.firstChild) {
+    statesSpace.removeChild(statesSpace.lastChild);
+  }
   states.forEach((state, i) => {
     const table = document.createElement("table");
+    const header = document.createElement("th");
+    header.colSpan = BOARD_SIZE;
+    header.innerText = `Step ${i + 1}`;
+    table.appendChild(header);
     table.id = `state${i}`;
-    statesSpace.appendChild(document.createElement("br"));
     statesSpace.appendChild(table);
 
     renderState(state, table.id);
@@ -152,8 +158,8 @@ class EightPuzzle {
     // puzzle is solvable if inversion count is even
     return inversionCount % 2 === 0;
   }
-  solve() {
-    if (!this.isSolvable()) return null;
+  solve(maxIter) {
+    // if (!this.isSolvable()) return null;
     // compute evaluation function for start node
     this.start.evalScore = evalFunction(
       this.start.state,
@@ -168,7 +174,7 @@ class EightPuzzle {
       // pop the best node
       let currentNode = this.open.shift();
 
-      console.log(currentNode.level, currentNode.state);
+      // console.log(currentNode.level, currentNode.state);
 
       // solution reached if heuristic is 0
       if (manhattanHeuristic(currentNode.state, GOAL_STATE) === 0)
@@ -187,22 +193,71 @@ class EightPuzzle {
       // be used instead
       this.open.sort((nodeA, nodeB) => nodeA.evalScore - nodeB.evalScore);
       iter++;
-      if (iter > 50) break;
+      console.log(iter);
+      if (maxIter && iter > maxIter) return null;
     }
   }
 }
 
-puzzle = new EightPuzzle([
-  [1, BLANK, 3],
-  [4, 2, 6],
-  [7, 5, 8],
-]);
-// puzzle = new EightPuzzle(GOAL_STATE);
-const solved = puzzle.solve();
-const solvedStates = [];
-let node = solved;
-while (node) {
-  solvedStates.push(node.state);
-  node = node.previousNode;
+function randomizeBoard(tableName = "eight-puzzle-input") {
+  const table = document.getElementById(tableName).childNodes[1];
+  const shuffledBoard = GOAL_STATE.flat().sort(() => Math.random() - 0.5);
+  for (let i = 0; i < BOARD_SIZE; i++) {
+    const row = table.rows[i];
+    for (let j = 0; j < BOARD_SIZE; j++)
+      row.cells[j].childNodes[0].value = shuffledBoard.pop();
+  }
 }
-renderStates(solvedStates);
+
+function parseInputBoard(tableName = "eight-puzzle-input") {
+  const possible = new Set(GOAL_STATE.flat());
+  const table = document.getElementById(tableName).childNodes[1];
+  const board = new Array(BOARD_SIZE);
+  for (let i = 0; i < BOARD_SIZE; i++) {
+    const boardRow = new Array(BOARD_SIZE);
+    const row = table.rows[i];
+    for (let j = 0; j < BOARD_SIZE; j++) {
+      let colVal = row.cells[j].childNodes[0].value
+        ? parseInt(row.cells[j].childNodes[0].value)
+        : BLANK;
+      if (possible.has(colVal)) {
+        possible.delete(colVal);
+        boardRow[j] = colVal;
+      } else {
+        throw "Duplicated or unknown values!";
+      }
+    }
+    board[i] = boardRow;
+  }
+  return board;
+}
+
+function solvePuzzle() {
+  let maxIter = parseInt(document.getElementById("max-iter").value);
+  let board = copyState(GOAL_STATE);
+
+  try {
+    board = parseInputBoard();
+  } catch (error) {
+    alert("Invalid input board!");
+    return;
+  }
+
+  puzzle = new EightPuzzle(board);
+  // puzzle = new EightPuzzle(GOAL_STATE);
+  console.log(maxIter);
+  const solved = puzzle.solve(maxIter);
+  if (solved) {
+    const solvedStates = [];
+    let node = solved;
+    while (node) {
+      solvedStates.push(node.state);
+      node = node.previousNode;
+    }
+    renderStates(solvedStates.reverse());
+  } else {
+    alert("The puzzle is unsolvable!");
+  }
+}
+
+solvePuzzle();

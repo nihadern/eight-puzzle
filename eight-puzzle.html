@@ -4,27 +4,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="index.css">
+
     <title>Eight Puzzle</title>
 </head>
-<style>
-    td,
-    th {
-        border: 1rem solid #999;
-        padding: 0.5rem;
-    }
-
-    input {
-        width: 3rem;
-    }
-</style>
 
 <body>
-    <table id="eight-puzzle">
-    </table>
-    <div id="states">
-        
+    <div class="row">
+        <div class="column">
+            <h3>Initital Puzzle</h3>
+            <table id="eight-puzzle-input">
+                <tr>
+                    <td><input value=1></td>
+                    <td><input value=""></td>
+                    <td><input value=3></input></td>
+                </tr>
+                <tr>
+                    <td><input value=4></td>
+                    <td><input value=2></td>
+                    <td><input value=6></td>
+                </tr>
+                <tr>
+                    <td><input value=7></td>
+                    <td><input value=5></td>
+                    <td><input value=8></td>
+                </tr>
+            </table>
+            <div class="col">
+                <button onclick="solvePuzzle()">Solve</button>
+                <button onclick="randomizeBoard()">Randomize</button>
+                <h4>Max Iterations: <input id="max-iter" value=5000></h4>
+
+
+            </div>
+        </div>
+
+        <div class=" column">
+            <h3>Solve Steps</h3>
+            <div id="states" class="board-states">
+
+            </div>
+        </div>
+
     </div>
-    <script src="main.js"></script>
+    <script src="main.js">
+    </script>
 </body>
 
 </html>

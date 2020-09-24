@@ -1,0 +1,36 @@
+td,
+th {
+  border: 1rem solid #999;
+  padding: 0.5rem;
+}
+.column {
+  float: left;
+  width: 50%;
+}
+table {
+  float: left;
+  margin-right: 1rem;
+  margin-bottom: 1rem;
+}
+
+body {
+  padding-top: 2rem;
+  padding-left: 3rem;
+  padding-right: 3rem;
+}
+
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+  margin: 1rem;
+}
+
+button {
+  padding: 1rem;
+  margin-right: 1rem;
+}
+
+input {
+  width: 3rem;
+}
