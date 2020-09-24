@@ -101,9 +101,8 @@ function evalFunction(currentState, goalState, level) {
 class EightPuzzle {
   constructor(initialState) {
     this.start = new EightPuzzleNode(initialState, 0, null);
-    this.open = [];
-
     this.solve = this.solve.bind(this);
+    this.iter = 0;
     this.isSolvable = this.isSolvable.bind(this);
   }
 
@@ -129,13 +128,15 @@ class EightPuzzle {
       GOAL_STATE,
       this.start.level
     );
+
+    const open = new PriorityQueue((a, b) => a.evalScore > b.evalScore);
     // add start node to open list
-    this.open.push(this.start);
+    open.enqueue(this.start);
 
     this.iter = 0;
     while (true) {
       // pop the best node
-      let currentNode = this.open.shift();
+      let currentNode = open.dequeue();
 
       // console.log(currentNode.level, currentNode.state);
 
@@ -150,11 +151,11 @@ class EightPuzzle {
           GOAL_STATE,
           childNode.level
         );
-        this.open.push(childNode);
+        open.enqueue(childNode);
       });
       // sort the open list by the evaluation scores/ a prioty list could
       // be used instead
-      this.open.sort((nodeA, nodeB) => nodeA.evalScore - nodeB.evalScore);
+      //   this.open.sort((nodeA, nodeB) => nodeA.evalScore - nodeB.evalScore);
       this.iter++;
       if (maxIter && this.iter > maxIter) return null;
     }
