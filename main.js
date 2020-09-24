@@ -21,12 +21,16 @@ function renderState(state, tableName = "eight-puzzle") {
     }
   }
 }
-
-function renderStates(states) {
-  const statesSpace = document.getElementById("states");
+function clearSolveStates(statesSpaceid = "states") {
+  const statesSpace = document.getElementById(statesSpaceid);
   while (statesSpace.firstChild) {
     statesSpace.removeChild(statesSpace.lastChild);
   }
+}
+
+function renderStates(states, statesSpaceid = "states") {
+  const statesSpace = document.getElementById(statesSpaceid);
+
   states.forEach((state, i) => {
     const table = document.createElement("table");
     const header = document.createElement("th");
@@ -193,7 +197,6 @@ class EightPuzzle {
       // be used instead
       this.open.sort((nodeA, nodeB) => nodeA.evalScore - nodeB.evalScore);
       iter++;
-      console.log(iter);
       if (maxIter && iter > maxIter) return null;
     }
   }
@@ -232,20 +235,25 @@ function parseInputBoard(tableName = "eight-puzzle-input") {
   return board;
 }
 
+function displayMessage(message, success = true, messageBoxId = "output") {
+  const messageBox = document.getElementById(messageBoxId);
+  messageBox.style = success ? "color:green;" : "color:red;";
+  messageBox.innerText = message;
+}
+
 function solvePuzzle() {
+  clearSolveStates();
   let maxIter = parseInt(document.getElementById("max-iter").value);
   let board = copyState(GOAL_STATE);
 
   try {
     board = parseInputBoard();
   } catch (error) {
-    alert("Invalid input board!");
+    displayMessage("Invalid input board!", false);
     return;
   }
 
   puzzle = new EightPuzzle(board);
-  // puzzle = new EightPuzzle(GOAL_STATE);
-  console.log(maxIter);
   const solved = puzzle.solve(maxIter);
   if (solved) {
     const solvedStates = [];
@@ -256,8 +264,10 @@ function solvePuzzle() {
     }
     renderStates(solvedStates.reverse());
   } else {
-    alert("The puzzle is unsolvable!");
+    displayMessage("The puzzle is unsolvable!", false);
+    return;
   }
+  displayMessage("Solved!");
 }
 
 function randomizeSolveBoard() {
