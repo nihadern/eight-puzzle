@@ -77,14 +77,21 @@ class EightPuzzleNode {
   }
 }
 
+function goalStatePosition(number) {
+  // lookup the position of the number in the goal board
+  const goalCol = (number - 1) % BOARD_SIZE;
+  const goalRow = Math.floor((number - 1) / BOARD_SIZE);
+  return [goalRow, goalCol];
+}
+
 // first heuristic: the manhatan distance of each tile i.e. h(x)
 function manhattanHeuristic(currentState) {
   let score = 0;
   for (let i = 0; i < currentState.length; i++)
     for (let j = 0; j < currentState[0].length; j++) {
+      // add the distance to the score for every number except blank
       if (currentState[i][j] !== BLANK) {
-        const goalCol = (currentState[i][j] - 1) % BOARD_SIZE;
-        const goalRow = Math.floor((currentState[i][j] - 1) / BOARD_SIZE);
+        const [goalRow, goalCol] = goalStatePosition(currentState[i][j]);
         score += Math.abs(i - goalRow) + Math.abs(j - goalCol);
       }
     }
@@ -96,6 +103,8 @@ function hammingHeuristic(currentState) {
   let score = 0;
   for (let i = 0; i < currentState.length; i++)
     for (let j = 0; j < currentState[0].length; j++) {
+      // add one to the score if not blank and in a different position than
+      // goal
       if (currentState[i][j] !== BLANK) {
         const goalCol = (currentState[i][j] - 1) % BOARD_SIZE;
         const goalRow = Math.floor((currentState[i][j] - 1) / BOARD_SIZE);
@@ -107,20 +116,22 @@ function hammingHeuristic(currentState) {
 
 // evaluation function for the A* algorithm i.e. f(x)
 function evalFunction(currentState, level) {
+  // f(x) = h(x) + g(x)
   return manhattanHeuristic(currentState) + level;
 }
 
 // the driver for the eight puzzle
 class EightPuzzle {
   constructor(initialState) {
+    // a puzzle has a start state/node and how many iterations has passed
     this.start = new EightPuzzleNode(initialState, 0, null);
-    this.solve = this.solve.bind(this);
     this.iter = 0;
   }
 
   // computes the inversion count to determine if the board is solvable
   isSolvable() {
     let inversionCount = 0;
+    // inversion is computed with the flatttened array
     const flatBoard = this.start.state.flat();
     for (let i = 0; i < flatBoard.length; i++)
       for (let j = i + 1; j < flatBoard.length; j++)
@@ -133,10 +144,12 @@ class EightPuzzle {
     return inversionCount % 2 === 0;
   }
   solve(maxIter = Number.MAX_VALUE) {
+    // if the puzzle is not solvable return null to indicate no solution
     if (!this.isSolvable()) return null;
     // compute evaluation function for start node
     this.start.evalScore = evalFunction(this.start.state, this.start.level);
 
+    // priority queue to determine which node to visit first
     const open = new PriorityQueue((a, b) => a.evalScore < b.evalScore);
     // add start node to open list
     open.enqueue(this.start);
@@ -151,12 +164,16 @@ class EightPuzzle {
 
       // compute eval function for each child node
       currentNode.getChildNodes().forEach((childNode) => {
+        // compute f(x) for the child and add it to the queue based on f(x)
         childNode.evalScore = evalFunction(childNode.state, childNode.level);
         open.enqueue(childNode);
       });
+
+      // stops if max iteration is reached (convinience feature)
       this.iter++;
       if (this.iter > maxIter) throw "Max iteration reached!";
     }
+    // if all moves exhausted, there is no solution
     return null;
   }
 }
