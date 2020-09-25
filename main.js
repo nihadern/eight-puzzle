@@ -21,6 +21,8 @@ function renderState(state, tableName = "eight-puzzle") {
     }
   }
 }
+
+// clears the solve moves from document
 function clearSolveStates(statesSpaceid = "states") {
   const statesSpace = document.getElementById(statesSpaceid);
   while (statesSpace.firstChild) {
@@ -28,6 +30,7 @@ function clearSolveStates(statesSpaceid = "states") {
   }
 }
 
+// renders to html all solve moves left to right
 function renderStates(states, statesSpaceid = "states") {
   const statesSpace = document.getElementById(statesSpaceid);
 
@@ -44,6 +47,7 @@ function renderStates(states, statesSpaceid = "states") {
   });
 }
 
+// creates a random board and renders it to the tableName element
 function randomizeBoard(tableName = "eight-puzzle-input") {
   const table = document.getElementById(tableName).childNodes[1];
   const shuffledBoard = GOAL_STATE.flat().sort(() => Math.random() - 0.5);
@@ -54,6 +58,7 @@ function randomizeBoard(tableName = "eight-puzzle-input") {
   }
 }
 
+// parses an input board from the html doc and returns a 2d array
 function parseInputBoard(tableName = "eight-puzzle-input") {
   const possible = new Set(GOAL_STATE.flat());
   const table = document.getElementById(tableName).childNodes[1];
@@ -77,26 +82,31 @@ function parseInputBoard(tableName = "eight-puzzle-input") {
   return board;
 }
 
+// displays a message with green if success and red if not
 function displayMessage(message, success = true, messageBoxId = "output") {
   const messageBox = document.getElementById(messageBoxId);
   messageBox.style = success ? "color:green;" : "color:red;";
   messageBox.innerText = message;
 }
 
+// main driver to solve puzzle
 function solvePuzzle() {
+  // remove all moves from previous puzzles
   clearSolveStates();
+  // parse the max iteration input
   let maxIter = parseInt(document.getElementById("max-iter").value);
   let board = copyState(GOAL_STATE);
-
+  // validate input board
   try {
     board = parseInputBoard();
   } catch (error) {
     displayMessage("Invalid input board!", false);
     return;
   }
-
+  // create a new puzzle
   puzzle = new EightPuzzle(board);
   let solved = null;
+  // try to solve it and show an error if failed
   try {
     solved = puzzle.solve(maxIter);
   } catch (error) {
@@ -104,6 +114,7 @@ function solvePuzzle() {
     return;
   }
 
+  // if solution is found render all  the moves
   if (solved) {
     const solvedStates = [];
     let node = solved;
@@ -113,17 +124,21 @@ function solvePuzzle() {
     }
     renderStates(solvedStates.reverse().slice(1));
   } else {
+    // otherwise puzzle is unsolvable
     displayMessage("The puzzle is unsolvable!", false);
     return;
   }
+  // diplay moves and iterations taken
   displayMessage(
     `Solved in  ${solved.level} moves and ${puzzle.iter} iterations!`
   );
 }
 
+// creates and random board and solves it
 function randomizeSolveBoard() {
   randomizeBoard();
   solvePuzzle();
 }
 
+// solves initial board
 solvePuzzle();
