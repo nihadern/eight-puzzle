@@ -5,7 +5,7 @@ class PriorityQueue {
   }
 
   enqueue(element) {
-    for (var i = 0; i < this.items.length; i++) {
+    for (let i = 0; i < this.items.length; i++) {
       if (this.compare(this.items[i], element)) {
         this.items.splice(i, 0, element);
         return;
@@ -33,11 +33,3 @@ class PriorityQueue {
     return this.items.length;
   }
 }
-
-// const pq = new PriorityQueue();
-
-// pq.enqueue(3);
-// pq.enqueue(1);
-// pq.enqueue(2);
-// console.log(pq.items);
-// console.log(pq.dequeue());
