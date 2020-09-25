@@ -137,7 +137,7 @@ class EightPuzzle {
     // compute evaluation function for start node
     this.start.evalScore = evalFunction(this.start.state, this.start.level);
 
-    const open = new PriorityQueue((a, b) => a.evalScore > b.evalScore);
+    const open = new PriorityQueue((a, b) => a.evalScore < b.evalScore);
     // add start node to open list
     open.enqueue(this.start);
 
