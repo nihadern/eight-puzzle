@@ -46,6 +46,55 @@ class EightPuzzleNode {
     this.previousNode = previousNode;
   }
 
+  parity() {
+    let inversionCount = 0;
+    // inversion is computed with the flatttened array
+    const flatBoard = this.state.flat();
+    for (let i = 0; i < flatBoard.length; i++)
+      for (let j = i + 1; j < flatBoard.length; j++)
+        if (
+          flatBoard[j] !== BLANK &&
+          flatBoard[i] !== BLANK &&
+          flatBoard[j] > flatBoard[i]
+        )
+          inversionCount++;
+    return inversionCount % 2 === 0;
+  }
+  // first heuristic: the manhatan distance of each tile i.e. h(x)
+  manhattanHeuristic(goalLookup) {
+    let score = 0;
+    for (let i = 0; i < this.state.length; i++)
+      for (let j = 0; j < this.state[0].length; j++) {
+        // add the distance to the score for every number except blank
+        if (this.state[i][j] !== BLANK) {
+          const [goalRow, goalCol] = goalLookup[this.state[i][j]];
+          score += Math.abs(i - goalRow) + Math.abs(j - goalCol);
+        }
+      }
+    return score;
+  }
+
+  // first heuristic: number of misplaced i.e. h(x)
+  hammingHeuristic(goalLookup) {
+    let score = 0;
+    for (let i = 0; i < this.state.length; i++)
+      for (let j = 0; j < this.state[0].length; j++) {
+        // add one to the score if not blank and in a different position than
+        // goal
+        if (this.state[i][j] !== BLANK) {
+          const [goalRow, goalCol] = goalLookup[this.state[i][j]];
+          if (goalCol !== j || goalRow !== i) score++;
+        }
+      }
+    return score;
+  }
+
+  // evaluation function for the A* algorithm i.e. f(x)
+  evalFunction(goalLookup) {
+    // f(x) = h(x) + g(x)
+    return this.manhattanHeuristic(goalLookup) + this.level;
+  }
+
   getChildNodes() {
     // find the blank index
     const [blankRow, blankCol] = boardFind(this.state, BLANK);
@@ -77,77 +126,33 @@ class EightPuzzleNode {
   }
 }
 
-function goalStatePosition(number) {
-  // lookup the position of the number in the goal board
-  const goalCol = (number - 1) % BOARD_SIZE;
-  const goalRow = Math.floor((number - 1) / BOARD_SIZE);
-  return [goalRow, goalCol];
-}
-
-// first heuristic: the manhatan distance of each tile i.e. h(x)
-function manhattanHeuristic(currentState) {
-  let score = 0;
-  for (let i = 0; i < currentState.length; i++)
-    for (let j = 0; j < currentState[0].length; j++) {
-      // add the distance to the score for every number except blank
-      if (currentState[i][j] !== BLANK) {
-        const [goalRow, goalCol] = goalStatePosition(currentState[i][j]);
-        score += Math.abs(i - goalRow) + Math.abs(j - goalCol);
-      }
-    }
-  return score;
-}
-
-// first heuristic: number of misplaced i.e. h(x)
-function hammingHeuristic(currentState) {
-  let score = 0;
-  for (let i = 0; i < currentState.length; i++)
-    for (let j = 0; j < currentState[0].length; j++) {
-      // add one to the score if not blank and in a different position than
-      // goal
-      if (currentState[i][j] !== BLANK) {
-        const goalCol = (currentState[i][j] - 1) % BOARD_SIZE;
-        const goalRow = Math.floor((currentState[i][j] - 1) / BOARD_SIZE);
-        if (goalCol !== j || goalRow !== i) score++;
-      }
-    }
-  return score;
-}
-
-// evaluation function for the A* algorithm i.e. f(x)
-function evalFunction(currentState, level) {
-  // f(x) = h(x) + g(x)
-  return manhattanHeuristic(currentState) + level;
-}
-
 // the driver for the eight puzzle
 class EightPuzzle {
-  constructor(initialState) {
+  constructor(initialState, goalState) {
     // a puzzle has a start state/node and how many iterations has passed
     this.start = new EightPuzzleNode(initialState, 0, null);
+    this.goal = new EightPuzzleNode(goalState, 0, null);
+
+    // create a goal map for faster goal lookup
+    this.goalLookup = new Map();
+
+    for (let i = 0; i < goalState.length; i++)
+      for (let j = 0; j < goalState.length; j++)
+        this.goalLookup[goalState[i][j]] = [i, j];
+
     this.iter = 0;
   }
 
   // computes the inversion count to determine if the board is solvable
   isSolvable() {
-    let inversionCount = 0;
-    // inversion is computed with the flatttened array
-    const flatBoard = this.start.state.flat();
-    for (let i = 0; i < flatBoard.length; i++)
-      for (let j = i + 1; j < flatBoard.length; j++)
-        if (
-          flatBoard[j] !== BLANK &&
-          flatBoard[i] !== BLANK &&
-          flatBoard[j] > flatBoard[i]
-        )
-          inversionCount++;
-    return inversionCount % 2 === 0;
+    return this.start.parity() === this.goal.parity();
   }
+
   solve(maxIter = Number.MAX_VALUE) {
     // if the puzzle is not solvable return null to indicate no solution
     if (!this.isSolvable()) return null;
     // compute evaluation function for start node
-    this.start.evalScore = evalFunction(this.start.state, this.start.level);
+    this.start.evalScore = this.start.evalFunction(this.goalLookup);
 
     // priority queue to determine which node to visit first
     const open = new PriorityQueue((a, b) => a.evalScore < b.evalScore);
@@ -160,12 +165,13 @@ class EightPuzzle {
       let currentNode = open.dequeue();
 
       // solution reached if heuristic is 0
-      if (manhattanHeuristic(currentNode.state) === 0) return currentNode;
+      if (currentNode.manhattanHeuristic(this.goalLookup) === 0)
+        return currentNode;
 
       // compute eval function for each child node
       currentNode.getChildNodes().forEach((childNode) => {
         // compute f(x) for the child and add it to the queue based on f(x)
-        childNode.evalScore = evalFunction(childNode.state, childNode.level);
+        childNode.evalScore = childNode.evalFunction(this.goalLookup);
         open.enqueue(childNode);
       });
 

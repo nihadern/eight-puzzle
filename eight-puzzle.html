@@ -12,29 +12,53 @@
 <body>
     <div class="row">
         <div class="column">
-            <h3>Initital Puzzle</h3>
-            <table id="eight-puzzle-input">
-                <tr>
-                    <td><input value=1></td>
-                    <td><input value=""></td>
-                    <td><input value=3></input></td>
-                </tr>
-                <tr>
-                    <td><input value=4></td>
-                    <td><input value=2></td>
-                    <td><input value=6></td>
-                </tr>
-                <tr>
-                    <td><input value=7></td>
-                    <td><input value=5></td>
-                    <td><input value=8></td>
-                </tr>
-            </table>
+            <div class="row">
+
+                <h3>Initital Puzzle</h3>
+                <table id="eight-puzzle-start">
+                    <tr>
+                        <td><input value=2></td>
+                        <td><input value=8></td>
+                        <td><input value=3></input></td>
+                    </tr>
+                    <tr>
+                        <td><input value=1></td>
+                        <td><input value=6></td>
+                        <td><input value=4></td>
+                    </tr>
+                    <tr>
+                        <td><input value=7></td>
+                        <td><input value=""></td>
+                        <td><input value=5></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="row">
+
+                <h3>Goal</h3>
+                <table id="eight-puzzle-goal">
+                    <tr>
+                        <td><input value=1></td>
+                        <td><input value=2></td>
+                        <td><input value=3></input></td>
+                    </tr>
+                    <tr>
+                        <td><input value=8></td>
+                        <td><input value=""></td>
+                        <td><input value=4></td>
+                    </tr>
+                    <tr>
+                        <td><input value=7></td>
+                        <td><input value=6></td>
+                        <td><input value=5></td>
+                    </tr>
+                </table>
+            </div>
             <div class="col">
                 <button id="solve" onclick="solvePuzzle()">Solve</button>
                 <button onclick="randomizeBoard()">Randomize</button>
                 <button onclick="randomizeSolveBoard()">Randomize and Solve</button>
-                <h4>Max Iterations: <input id="max-iter" value=1000000></h4>
+                <h4>Max Iterations: <input id="max-iter" value=100000></h4>
                 <h2 id="output" style="color: red;">
                 </h2>
 

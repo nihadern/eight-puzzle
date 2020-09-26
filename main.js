@@ -48,7 +48,7 @@ function renderStates(states, statesSpaceid = "states") {
 }
 
 // creates a random board and renders it to the tableName element
-function randomizeBoard(tableName = "eight-puzzle-input") {
+function randomizeBoard(tableName = "eight-puzzle-start") {
   const table = document.getElementById(tableName).childNodes[1];
   const shuffledBoard = GOAL_STATE.flat().sort(() => Math.random() - 0.5);
   for (let i = 0; i < BOARD_SIZE; i++) {
@@ -59,7 +59,7 @@ function randomizeBoard(tableName = "eight-puzzle-input") {
 }
 
 // parses an input board from the html doc and returns a 2d array
-function parseInputBoard(tableName = "eight-puzzle-input") {
+function parseInputBoard(tableName = "eight-puzzle-start") {
   const possible = new Set(GOAL_STATE.flat());
   const table = document.getElementById(tableName).childNodes[1];
   const board = new Array(BOARD_SIZE);
@@ -96,6 +96,7 @@ function solvePuzzle() {
   // parse the max iteration input
   let maxIter = parseInt(document.getElementById("max-iter").value);
   let board = copyState(GOAL_STATE);
+  let goalBoard = copyState(GOAL_STATE);
   // validate input board
   try {
     board = parseInputBoard();
@@ -103,8 +104,14 @@ function solvePuzzle() {
     displayMessage("Invalid input board!", false);
     return;
   }
+  try {
+    goalBoard = parseInputBoard("eight-puzzle-goal");
+  } catch (error) {
+    displayMessage("Invalid goal board!", false);
+    return;
+  }
   // create a new puzzle
-  puzzle = new EightPuzzle(board);
+  puzzle = new EightPuzzle(board, goalBoard);
   let solved = null;
   // try to solve it and show an error if failed
   try {
