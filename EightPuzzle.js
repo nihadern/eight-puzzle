@@ -129,7 +129,7 @@ class EightPuzzleNode {
 // the driver for the eight puzzle
 class EightPuzzle {
   constructor(initialState, goalState) {
-    // a puzzle has a start state/node and how many iterations has passed
+    // a puzzle has a start state/node and a goal node/state
     this.start = new EightPuzzleNode(initialState, 0, null);
     this.goal = new EightPuzzleNode(goalState, 0, null);
 
@@ -140,11 +140,13 @@ class EightPuzzle {
       for (let j = 0; j < goalState.length; j++)
         this.goalLookup[goalState[i][j]] = [i, j];
 
+    //how many iterations has passed
     this.iter = 0;
   }
 
   // computes the inversion count to determine if the board is solvable
   isSolvable() {
+    // solvable if the parity of the goal and start are the same
     return this.start.parity() === this.goal.parity();
   }
 
