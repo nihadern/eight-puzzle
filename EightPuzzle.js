@@ -179,7 +179,7 @@ class EightPuzzle {
 
       // stops if max iteration is reached (convinience feature)
       this.iter++;
-      if (this.iter > maxIter) throw "Max iteration reached!";
+      if (this.iter > maxIter) throw "Max iterations reached!";
     }
     // if all moves exhausted, there is no solution
     return null;
