@@ -26,7 +26,7 @@ function moveBlank(state, blankRow, blankCol, moveRow, moveCol) {
     moveCol < BOARD_SIZE &&
     moveCol >= 0
   ) {
-    newState = copyState(state);
+    const newState = copyState(state);
     newState[blankRow][blankCol] = newState[moveRow][moveCol];
     newState[moveRow][moveCol] = BLANK;
     return newState;
